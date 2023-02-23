@@ -11,7 +11,9 @@ export default async function weatherApi(stationID, csvName) {
             {id: 'date', title: 'Date'},
             {id: 'average_temperature', title: 'Average Temperature'},
             {id: 'total_precipitation', title: 'Total Precipitation'},
-            {id: 'humidity_rh', title: 'Humidity (rh)'}
+            {id: 'humidity_rh', title: 'Humidity (rh)'},
+            {id: 'pressure_in', title: 'Pressure (in)'},
+            {id: 'wind_speed', title: 'Wind Speed (mph)'}
         ]
     });
     stream.write(csvStringifier.getHeaderString());  // write csv header
@@ -29,14 +31,22 @@ export default async function weatherApi(stationID, csvName) {
             let sumTemp = 0;
             let sumHumid = 0;
             let precip = 0;
+            let pressure = 0;
+            let windSpd = 0;
+
+
 
             // sum temperature measurements of the day and calculate the average
             while (i < data.observations.length) {
                 sumTemp += data.observations[i].temp;
                 sumHumid += data.observations[i].rh;
+                windSpd += data.observations[i].wspd;
+                pressure += data.observations[i].pressure;
+                
                 if (data.observations[i].precip_hrly != null) {
                     precip += data.observations[i].precip_hrly;
                 }
+                
                 i++;
             }
     
@@ -45,7 +55,9 @@ export default async function weatherApi(stationID, csvName) {
                 'date': date.toString(),
                 'average_temperature': sumTemp/i,
                 'total_precipitation': precip,
-                'humidity_rh': sumHumid/i
+                'humidity_rh': sumHumid/i,
+                'pressure_in': pressure/i,
+                'wind_speed': windSpd/i
                 }
             ];
             stream.write(csvStringifier.stringifyRecords(dayWeatherData));
